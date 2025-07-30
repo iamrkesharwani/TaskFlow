@@ -1,4 +1,4 @@
-# 📝 Todo App - Enterprise-Grade Task Management System
+# 📝 Todo App - Task Management System
 
 ## 🧠 1. Project Summary
 

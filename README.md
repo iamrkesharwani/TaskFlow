@@ -91,8 +91,9 @@ open index.html
 todo-app/
 ├── 📄 index.html              # Main HTML file
 ├── 🎨 css/
-│   ├── styles.css             # Custom styles and components
 │   └── components/            # Component-specific styling
+│   ├── styles.css             # Custom styles and components
+│   ├── output.css             # Tailwind styling
 ├── ⚡ js/
 │   ├── app.js                 # Main application logic
 │   ├── components/            # Reusable UI components

@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow - The Todo App</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/output.css" />
+    <link rel="stylesheet" href="/css/custom.css" />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+    />
+
+    <!-- Flatpickr -->
+    <link
+      id="flatpickr-css"
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="dark overflow-hidden bg-slate-100 font-poppins">
+    <div>
+      <!-- Header with logo, search and dark mode toggle -->
+      <header
+        class="flex h-[80px] items-center justify-between bg-white px-6 text-blue-600 shadow-lg dark:bg-slate-800 md:m-6 md:rounded-2xl"
+      >
+        <!-- App logo and title -->
+        <div class="flex items-center gap-2 text-[25px]" id="app-info">
+          <div
+            class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white dark:bg-gradient-to-r dark:from-blue-300 dark:to-indigo-400 md:h-10 md:w-10"
+          >
+            <i class="fas fa-check-double text-sm md:text-lg"></i>
+          </div>
+          <div>
+            <h1 class="text-xl font-semibold dark:text-blue-300">TaskFlow</h1>
+            <p
+              class="hidden text-xs font-semibold text-gray-400 dark:text-gray-200 md:block"
+            >
+              Your Productivity Companion
+            </p>
+          </div>
+        </div>
+
+        <!-- Search bar and controls -->
+        <section class="flex items-center justify-center gap-3">
+          <div>
+            <i
+              id="search-mobile-icon"
+              class="fa-solid fa-magnifying-glass text-lg text-blue-600 dark:text-blue-300 md:!hidden"
+            ></i>
+          </div>
+          <div class="relative hidden w-full max-w-xs md:block">
+            <i
+              id="search-icon"
+              class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 transform text-base text-blue-400 hover:shadow-glow hover:shadow-none focus:shadow-glow focus:shadow-none dark:text-blue-200"
+            ></i>
+            <input
+              id="search-input"
+              type="text"
+              style="border: none !important; outline: none !important"
+              class="focus-ring h-10 w-64 rounded-lg border-0 bg-white/80 pl-10 pr-4 text-sm placeholder-slate-400 shadow-soft transition-all duration-300 focus:bg-white focus:shadow-glow dark:bg-slate-500 dark:text-slate-100 dark:placeholder-gray-200"
+              placeholder="Search tasks..."
+            />
+          </div>
+          <button
+            aria-label="Toggle Dark Mode"
+            id="dark-mode-button"
+            class="flex hidden h-10 w-[3rem] items-center justify-center rounded-md bg-white text-slate-700 shadow-soft focus:shadow-glow dark:bg-slate-500 dark:text-yellow-300 md:block"
+          >
+            <i class="fa-solid fa-moon"></i>
+          </button>
+
+          <button
+            id="sidebar-toggle"
+            aria-label="Sidebar Menu"
+            class="md:hidden"
+          >
+            <i
+              class="fa-solid fa-bars text-xl text-blue-600 dark:text-blue-300"
+            ></i>
+          </button>
+        </section>
+      </header>
+
+      <!-- Main app container -->
+      <main
+        class="h-[calc(100vh-80px)] md:flex md:h-[calc(100vh-104px-44px)] md:px-6 md:pb-1"
+      >
+        <!-- Left sidebar with filters and navigation -->
+        <aside
+          id="sidebar"
+          class="c-custom-scrollbar flex hidden h-full w-full flex-col bg-white shadow-2xl dark:bg-slate-800 md:block md:w-80 md:rounded-xl"
+        >
+          <div
+            class="sticky top-0 z-10 flex-shrink-0 bg-white p-4 pb-4 dark:bg-slate-800"
+          >
+            <!-- Dark Mode for Mobile Button -->
+            <button
+              aria-label="Toggle Dark Mode"
+              id="dark-mode-button"
+              class="mb-2 flex h-10 w-full items-center justify-center gap-1 rounded-md bg-white px-4 text-slate-700 shadow-strong focus:shadow-glow dark:bg-slate-600 dark:text-yellow-300 md:hidden"
+            >
+              <i class="fa-solid fa-moon"></i>
+              <p id="dark-mode-text" class="font-semibold"></p>
+            </button>
+
+            <!-- Add task button -->
+            <button
+              class="mx-auto my-1 w-[100%] w-full rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 py-3 font-semibold text-white hover:bg-blue-500 dark:bg-gradient-to-r dark:from-blue-400 dark:to-indigo-500 dark:text-white"
+              id="add-task-button"
+            >
+              <i class="fa-solid fa-plus"></i> Add New Task
+            </button>
+          </div>
+
+          <!-- Status filters -->
+          <div class="flex-1 overflow-auto p-4 pb-8">
+            <div class="flex flex-col gap-2 p-4 pt-0">
+              <h2
+                class="text-sm font-semibold opacity-60 dark:text-slate-100 dark:opacity-90"
+              >
+                TASK STATUS
+              </h2>
+              <div class="side-item-full">
+                <button class="side-item-button group hover:bg-teal-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-slate-200 group-hover:bg-teal-200"
+                    >
+                      <i class="fa-solid fa-list text-black"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >All Tasks</span
+                    >
+                  </div>
+                  <span class="count-style bg-slate-200" id="count-total"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-blue-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-blue-100 group-hover:bg-blue-200"
+                    >
+                      <i class="fa-regular fa-circle-play text-blue-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Active</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-blue-100 text-blue-600"
+                    id="count-active"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-green-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-green-100 group-hover:bg-green-200"
+                    >
+                      <i class="fa-regular fa-circle-check text-green-700"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Completed</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-green-100 text-green-700"
+                    id="count-completed"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-red-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-red-100 group-hover:bg-red-200"
+                    >
+                      <i class="fa-regular fa-clock text-red-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Overdue</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-red-100 text-red-600"
+                    id="count-overdue"
+                    >0</span
+                  >
+                </button>
+              </div>
+            </div>
+
+            <!-- Priority filters -->
+            <div class="flex flex-col gap-2 p-4">
+              <h2
+                class="text-sm font-semibold opacity-60 dark:text-slate-100 dark:opacity-90"
+              >
+                PRIORITY LEVELS
+              </h2>
+              <div class="side-item-full">
+                <button class="side-item-button group hover:bg-red-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-red-100 group-hover:bg-red-200"
+                    >
+                      <i class="fa-solid fa-arrow-up text-red-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >High</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-red-100 text-red-600"
+                    id="count-high"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-yellow-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-yellow-100 group-hover:bg-yellow-200"
+                    >
+                      <i class="fa-solid fa-minus text-yellow-700"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Medium</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-yellow-100 text-yellow-700"
+                    id="count-medium"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-green-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-green-100 group-hover:bg-green-200"
+                    >
+                      <i class="fa-solid fa-arrow-down text-green-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Low</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-green-100 text-green-600"
+                    id="count-low"
+                    >0</span
+                  >
+                </button>
+              </div>
+            </div>
+
+            <!-- Category filters -->
+            <div class="flex flex-col gap-2 p-4">
+              <h2
+                class="text-sm font-semibold opacity-50 dark:text-slate-100 dark:opacity-90"
+              >
+                CATEGORIES
+              </h2>
+              <div class="side-item-full">
+                <button class="side-item-button group hover:bg-purple-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-purple-100 group-hover:bg-purple-200"
+                    >
+                      <i class="fa-solid fa-house text-purple-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Personal</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-purple-100 text-purple-600"
+                    id="count-personal"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-indigo-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-indigo-100 group-hover:bg-indigo-200"
+                    >
+                      <i class="fa-solid fa-cart-shopping text-indigo-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Shopping</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-indigo-100 text-indigo-600"
+                    id="count-shopping"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-teal-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-teal-100 group-hover:bg-teal-200"
+                    >
+                      <i class="fa-solid fa-heart-pulse text-teal-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Health</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-teal-100 text-teal-600"
+                    id="count-health"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group hover:bg-cyan-50">
+                  <div class="side-item-content">
+                    <div
+                      class="side-item-icon bg-cyan-100 group-hover:bg-cyan-200"
+                    >
+                      <i class="fa-solid fa-briefcase text-cyan-600"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Work</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-cyan-100 text-cyan-600"
+                    id="count-work"
+                    >0</span
+                  >
+                </button>
+                <button class="side-item-button group">
+                  <div class="side-item-content">
+                    <div class="side-item-icon bg-slate-200">
+                      <i class="fa-solid fa-ellipsis text-gray-700"></i>
+                    </div>
+                    <span
+                      class="dark:text-slate-100 dark:group-hover:text-slate-800"
+                      >Other</span
+                    >
+                  </div>
+                  <span
+                    class="count-style bg-slate-200 text-gray-700"
+                    id="count-other"
+                    >0</span
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Task list area -->
+        <aside
+          class="c-custom-scrollbar flex h-full flex-1 flex-col bg-white py-2 shadow-2xl dark:bg-slate-800 md:ml-4 md:rounded-xl md:py-6 md:pb-4"
+        >
+          <!-- Header with title and sort/filter buttons -->
+          <div
+            class="sticky top-0 z-10 flex-shrink-0 bg-white pb-2 pt-2 dark:bg-slate-800"
+          >
+            <div class="flex content-center justify-between px-4 pb-2">
+              <div class="pb-1 md:pb-4">
+                <h2
+                  class="ml-2 text-3xl font-semibold text-blue-600 dark:text-blue-300 md:ml-4"
+                >
+                  Your Tasks
+                </h2>
+                <p
+                  class="ml-2 text-[0.60rem] font-semibold opacity-60 dark:text-gray-200 dark:opacity-90 md:ml-4 md:text-sm"
+                >
+                  Manage Your Productivity Here!
+                </p>
+              </div>
+              <div class="flex gap-4 md:mr-6">
+                <button
+                  id="sort-button"
+                  class="flex h-10 items-center justify-center gap-1 rounded-lg bg-slate-200 px-3 py-1 text-sm focus:bg-blue-600 focus:text-white dark:bg-blue-200 dark:text-blue-700 md:font-semibold"
+                >
+                  <i
+                    class="fa-solid fa-sort block !hidden md:!inline-block"
+                  ></i>
+                  <p>Sort</p>
+                </button>
+                <button
+                  id="filter-button"
+                  class="h-10 rounded-lg bg-slate-200 px-3 py-1 text-sm focus:bg-blue-600 focus:text-white dark:bg-blue-200 dark:text-blue-700 md:font-semibold"
+                >
+                  <i
+                    class="fa-solid fa-filter block !hidden md:!inline-block"
+                  ></i>
+                  Filter
+                </button>
+              </div>
+            </div>
+          </div>
+          <hr class="border-t border-gray-300 dark:border-slate-500" />
+          <!-- Empty state when no tasks -->
+          <div
+            id="empty-state"
+            class="mt-4 flex flex-col items-center justify-center gap-2 py-10 text-slate-500"
+          >
+            <div
+              class="rounded-full border border-2 border-blue-200 bg-blue-200 p-5"
+            >
+              <i class="fa-solid fa-clipboard-list text-3xl text-blue-600"></i>
+            </div>
+            <div class="flex flex-col items-center justify-center gap-2">
+              <h3
+                class="text-xl font-semibold text-slate-700 dark:text-blue-300"
+              >
+                No tasks yet!
+              </h3>
+              <p class="max-w-xs text-center dark:text-slate-200 md:max-w-sm">
+                Start your productivity journey by creating your first task.
+                You've got this! 🚀
+              </p>
+            </div>
+            <button
+              class="my-1 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 p-4 py-3 font-semibold text-white hover:bg-blue-500 dark:bg-gradient-to-r dark:from-blue-400 dark:to-indigo-500"
+              id="add-task-button"
+            >
+              <i class="fa-solid fa-plus"></i> Add Your First Task
+            </button>
+          </div>
+
+          <div
+            id="app-message"
+            class="fixed right-5 top-5 hidden rounded-lg px-4 py-2 text-white shadow-lg"
+          ></div>
+
+          <!-- Container where tasks will be dynamically added by JS -->
+          <div
+            class="mt-4 w-full space-y-4 overflow-auto px-4"
+            id="task-container"
+          ></div>
+
+          <!-- Mobile Add Task Button -->
+          <button
+            id="add-task-button"
+            aria-label="Add Task Button"
+            class="fixed bottom-20 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 font-bold text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl active:scale-95 dark:bg-gradient-to-r dark:from-blue-400 dark:to-indigo-500 md:hidden"
+          >
+            <i class="fa-solid fa-plus text-xl"></i>
+          </button>
+
+          <!-- Template for individual task cards -->
+          <template id="one-task-template">
+            <div
+              id="one-task-card"
+              class="relative flex cursor-pointer flex-col gap-2 rounded-xl border border-l-[6px] border-slate-200 border-slate-300 bg-slate-50 p-4 shadow-md dark:border-slate-600 dark:bg-slate-700"
+            >
+              <div
+                id="one-task-header"
+                class="relative flex items-center gap-4"
+              >
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 cursor-pointer dark:accent-indigo-400"
+                />
+                <h3
+                  id="one-task-title"
+                  class="flex-1 cursor-text truncate text-lg font-semibold text-slate-800 dark:text-slate-100"
+                ></h3>
+                <button
+                  id="more-options-button"
+                  class="relative z-20 dark:text-slate-300"
+                >
+                  <i class="fa-solid fa-ellipsis"></i>
+                </button>
+                <div
+                  id="more-options-menu"
+                  class="more-options-menu absolute right-0 top-full z-[500] mt-2 hidden w-28 rounded-md bg-white shadow-lg dark:bg-slate-600"
+                >
+                  <button
+                    id="edit-button"
+                    class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-500"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    id="delete-button"
+                    class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-500"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+
+              <!-- Task metadata: priority, date, category -->
+              <div
+                id="one-task-meta"
+                class="mt-1 flex flex-wrap gap-5 pl-[36px] text-sm dark:text-slate-300"
+              >
+                <span class="template-for-priority"></span>
+                <span class="template-for-date">
+                  <i class="fa-solid fa-calendar"></i>
+                  <span></span>
+                </span>
+                <span class="template-for-category"></span>
+              </div>
+              <h2
+                id="one-task-description"
+                class="hidden pl-[36px] pt-2 text-sm font-medium text-slate-400"
+              ></h2>
+            </div>
+          </template>
+        </aside>
+      </main>
+
+      <!-- Copyright Message -->
+      <footer
+        class="hidden flex-shrink-0 border-t border-gray-200 bg-white px-4 text-center dark:border-slate-800 dark:bg-slate-800 md:block md:dark:border-slate-600 md:dark:bg-slate-600"
+      >
+        <p class="text-[0.70rem] text-gray-500 dark:text-gray-400 md:text-xs">
+          © 2025 TaskFlow. All rights reserved. Built with ❤️ by Rahul
+          Kesharwani
+        </p>
+      </footer>
+
+      <!-- Modal for creating new tasks -->
+      <form
+        id="task-modal"
+        class="fixed inset-0 z-[100] flex hidden items-center justify-center bg-black/40"
+      >
+        <div
+          class="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg dark:bg-slate-600"
+        >
+          <h1 class="text-2xl font-semibold text-blue-600 dark:text-blue-200">
+            Add new task
+          </h1>
+
+          <hr
+            class="mt-4 border border-t border-slate-200 dark:border-slate-500"
+          />
+
+          <!-- Form fields for task creation -->
+          <div class="mt-6 flex flex-col gap-4">
+            <!-- Task title input (required) -->
+            <h2 class="font-semibold">Task Title*</h2>
+            <input
+              id="task-title-input"
+              type="text"
+              placeholder="Enter task title..."
+              name="title"
+              class="c-input-modals dark:border-slate-800 dark:bg-slate-800 dark:focus:border-blue-200"
+            />
+            <p id="title-error" class="mt-1 hidden text-sm text-red-500">
+              Task title is required.
+            </p>
+
+            <!-- Priority and category dropdowns -->
+            <div class="flex w-full gap-4">
+              <div class="priority flex-1">
+                <h2 class="mb-3 font-semibold">Priority</h2>
+                <select
+                  name="priority"
+                  id="priority-select"
+                  class="c-input-modals w-full dark:border-slate-800 dark:bg-slate-800 dark:focus:border-blue-200"
+                >
+                  <option value="Select Priority">Select Priority</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+
+              <div class="category flex-1">
+                <h2 class="mb-3 font-semibold">Category</h2>
+                <select
+                  name="category"
+                  id="category-select"
+                  class="c-input-modals w-full dark:border-slate-800 dark:bg-slate-800 dark:focus:border-blue-200"
+                >
+                  <option value="Select Category">Select Category</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Health">Health</option>
+                  <option value="Work">Work</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Date picker -->
+            <h2 class="font-semibold">Due Date</h2>
+            <input
+              id="date-select"
+              type="text"
+              class="c-input-modals dark:border-slate-800 dark:bg-slate-800 dark:focus:border-blue-200"
+              placeholder="Select date & time"
+              name="dueDate"
+            />
+
+            <!-- Description textarea -->
+            <h2 class="font-semibold">Description</h2>
+            <textarea
+              name="description"
+              id="description-input"
+              placeholder="Add task description..."
+              class="c-input-modals h-20 dark:border-slate-800 dark:bg-slate-800 dark:focus:border-blue-200"
+            ></textarea>
+
+            <hr
+              class="mt-4 border border-t border-slate-200 dark:border-slate-500"
+            />
+
+            <!-- Modal buttons -->
+            <div class="flex items-end justify-end gap-4">
+              <button
+                id="modal-cancel-button"
+                class="rounded-full border-2 border-slate-400 px-3 py-1 dark:!border-white dark:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                id="modal-create-button"
+                class="rounded-full border-2 border-blue-600 bg-blue-600 px-3 py-1 text-white"
+                type="submit"
+              >
+                <i class="fa-solid fa-plus"></i> Create Task
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Filter Modal -->
+
+      <form
+        id="filter-modal"
+        class="fixed inset-0 z-[100] flex hidden items-center justify-center gap-5 bg-black/40"
+        role="dialog"
+      >
+        <div
+          class="mx-4 flex w-full max-w-md flex-col gap-6 rounded-xl bg-white p-6 shadow-lg dark:bg-slate-600"
+        >
+          <div class="flex justify-between">
+            <h2
+              id="filterModalTitle"
+              class="mb-1 text-xl font-semibold text-gray-900 dark:text-blue-200"
+            >
+              Filter Tasks
+            </h2>
+            <button id="filter-modal-close">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <label
+              for="filter-category"
+              class="font-medium text-gray-700 dark:text-white"
+              >Category</label
+            >
+            <select
+              id="filter-category"
+              class="rounded-md border p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-slate-800 dark:bg-slate-800 dark:focus:ring-indigo-200"
+            >
+              <option value="">Select Category</option>
+              <option value="personal">Personal</option>
+              <option value="shopping">Shopping</option>
+              <option value="health">Health</option>
+              <option value="work">Work</option>
+              <option value="other">Other</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <label
+              for="filter-priority"
+              class="font-medium text-gray-700 dark:text-white"
+              >Priority</label
+            >
+            <select
+              id="filter-priority"
+              class="rounded-md border p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-slate-800 dark:bg-slate-800 dark:focus:ring-indigo-200"
+            >
+              <option value="">Select Priority</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <label
+              for="filter-date"
+              class="font-medium text-gray-700 dark:text-white"
+              >Due Date</label
+            >
+            <select
+              id="filter-date"
+              class="rounded-md border p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-slate-800 dark:bg-slate-800 dark:focus:ring-indigo-200"
+            >
+              <option value="all-dates">All Dates</option>
+              <option value="overdue">Overdue</option>
+              <option value="today">Due Today</option>
+              <option value="this-week">Due This Week</option>
+              <option value="later">Due Later</option>
+              <option value="none">No Due Date</option>
+            </select>
+          </div>
+
+          <div class="mt-6 flex gap-4">
+            <button
+              id="clear-filter"
+              type="button"
+              class="flex-grow rounded-md bg-gray-300 py-2 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-slate-800 dark:bg-slate-800 dark:focus:ring-indigo-200"
+            >
+              Clear Filters
+            </button>
+            <button
+              id="apply-filter"
+              type="submit"
+              class="flex-grow rounded-md bg-indigo-600 py-2 font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-600"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Sort Modal -->
+      <form
+        id="sort-modal"
+        class="fixed inset-0 z-[100] flex hidden items-center justify-center gap-5 bg-black/40"
+      >
+        <div
+          class="sort-content mx-4 flex w-full max-w-md flex-col gap-6 rounded-xl bg-white p-6 shadow-lg dark:bg-slate-600"
+        >
+          <div class="flex justify-between">
+            <h2
+              id="sortModalTitle"
+              class="mb-1 text-xl font-semibold text-gray-900 dark:text-blue-300"
+            >
+              Sort Tasks
+            </h2>
+            <button id="sort-modal-close">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <label
+              for="sort-by"
+              class="font-medium text-gray-700 dark:text-white"
+              >Sort By</label
+            >
+            <select
+              id="sort-by"
+              class="rounded-md border p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-slate-800 dark:bg-slate-800 dark:focus:ring-indigo-200"
+            >
+              <option value="dueDate">Due Date</option>
+              <option value="priority">Priority</option>
+              <option value="title">Title</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <label
+              for="sort-order"
+              class="font-medium text-gray-700 dark:text-white"
+              >Sort Order</label
+            >
+            <select
+              id="sort-order"
+              class="rounded-md border p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:border-slate-800 dark:bg-slate-800 dark:focus:ring-indigo-200"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+
+          <div class="mt-6 flex gap-4">
+            <button
+              id="sort-reset-button"
+              type="button"
+              class="flex-grow rounded-md bg-gray-300 py-2 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-slate-800 dark:bg-slate-800"
+            >
+              Reset
+            </button>
+            <button
+              id="sort-apply-button"
+              type="submit"
+              class="flex-grow rounded-md bg-indigo-600 py-2 font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-600"
+            >
+              Apply Sort
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Tailwind Purge Protection -->
+      <div class="mr-1 hidden text-black line-through opacity-60"></div>
+      <div class="text-slate-800"></div>
+      <div class="font-semibold text-red-500"></div>
+      <div class="font-semibold text-slate-600"></div>
+      <div class="bg-green-200"></div>
+      <div class="bg-green-500"></div>
+      <div class="invisible bg-red-500"></div>
+      <div class="visible block bg-blue-500"></div>
+      <div class="fixed right-5 top-5 z-50 rounded-lg"></div>
+      <div class="px-4 py-2 text-white shadow-lg"></div>
+    </div>
+
+    <!-- External scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

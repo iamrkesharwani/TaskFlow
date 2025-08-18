@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .side-item-full {
+    @apply flex flex-col gap-2
+  }
+  
+  .side-item-button {
+    @apply flex items-center justify-between rounded-md px-3 py-3 text-left font-semibold text-gray-800 hover:bg-slate-100;
+  }
+  
+  .side-item-icon {
+    @apply flex h-8 w-8 items-center justify-center rounded-md
+  }
+  
+  .side-item-content {
+    @apply flex items-center gap-3
+  }
+
+  .template-for-priority {
+    @apply rounded-full px-3 py-0.5 font-medium;
+  }
+
+  .template-for-category {
+    @apply rounded-full py-0.5 font-medium;
+  }
+
+  .template-for-date {
+    @apply flex items-center gap-1 text-slate-500;
+  }
+  
+  .count-style {
+    @apply rounded-full px-2 py-1 text-xs font-semibold
+  }
+}

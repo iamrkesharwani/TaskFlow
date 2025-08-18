@@ -1,10 +1,5 @@
 # TaskFlow - Your Productivity Companion
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://www.javascript.com/)
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://html.spec.whatwg.org/)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)](https://www.w3.org/Style/CSS/)
-
 A modern, feature-rich todo application built with vanilla JavaScript, HTML5, and CSS3. TaskFlow provides an intuitive interface for managing your daily tasks with advanced filtering, sorting, and organization capabilities.
 
 ## 🚀 Features

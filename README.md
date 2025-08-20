@@ -200,4 +200,4 @@ TaskFlow is fully responsive with mobile-optimized features:
 
 ---
 
-**TaskFlow** - Simplifying productivity, one task at a time. ✅
+**TaskFlow** - Your Productivity Companion
